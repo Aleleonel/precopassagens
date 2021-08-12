@@ -9,3 +9,13 @@ def index(request):
         'form': form
         }
     return render(request, template_name, context)
+
+
+def revisao_consulta(request):
+    template_name = 'consulta.html'
+    if request.method == 'POST':
+        form = PassagemForms(request.POST)
+        context = {
+            'form': form
+            }
+    return render(request, template_name, context)
