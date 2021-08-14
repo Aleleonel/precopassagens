@@ -15,7 +15,15 @@ def revisao_consulta(request):
     template_name = 'consulta.html'
     if request.method == 'POST':
         form = PassagemForms(request.POST)
-        context = {
-            'form': form
-            }
-    return render(request, template_name, context)
+        if form.is_valid():
+            context = {
+                'form': form
+                }
+            return render(request, template_name, context)
+        else:
+            print('Form Inválido')
+            template_name = 'index.html'
+            context = {
+                'form': form
+                }
+            return render(request, template_name, context)
