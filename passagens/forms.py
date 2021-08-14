@@ -2,6 +2,7 @@ from django import forms
 from tempus_dominus.widgets import DatePicker
 from datetime import datetime
 from .class_viagem import tipos_de_classe
+from .validaion import *
 
 
 class PassagemForms(forms.Form):
@@ -21,16 +22,23 @@ class PassagemForms(forms.Form):
     )
     email = forms.EmailField(label='E-mail', max_length=150)
 
-    def clean_origem(self):
+    def clean(self):
+        # Campos do Formulário
         origem = self.cleaned_data.get('origem')
-        if any(char.isdigit() for char in origem):
-            raise forms.ValidationError('Origem inválida:Não incluir números')
-        else:
-            return origem
-
-    def clean_destino(self):
         destino = self.cleaned_data.get('destino')
-        if any(char.isdigit() for char in destino):
-            raise forms.ValidationError('Destino inválida:Não incluir números')
-        else:
-            return destino
+        data_ida = self.cleaned_data.get('data_ida')
+        data_volta = self.cleaned_data.get('data_volta')
+        datapesquisa = self.cleaned_data.get('datapesquisa')
+        lista_de_erros = {}
+
+        # funções
+        campo_tem_algum_numero(origem, 'origem', lista_de_erros)
+        campo_tem_algum_numero(destino, 'destino', lista_de_erros)
+        origem_destino_iguais(origem, destino, lista_de_erros)
+        data_ida_maior_data_volta(data_ida, data_volta, lista_de_erros)
+        verifica_data_da_compra(data_ida, data_volta, lista_de_erros)
+        if lista_de_erros is not None:
+            for erro in lista_de_erros:
+                mensagem_erro = lista_de_erros[erro]
+                self.add_error(erro, mensagem_erro)
+        return self.cleaned_data
