@@ -3,24 +3,29 @@ from tempus_dominus.widgets import DatePicker
 from datetime import datetime
 from .class_viagem import tipos_de_classe
 from .validaion import *
+from passagens.models import Passagem, ClasseViagem, Pessoa
 
 
-class PassagemForms(forms.Form):
-    origem = forms.CharField(label='Origem', max_length=100)
-    destino = forms.CharField(label='Destino', max_length=100)
-    data_ida = forms.DateField(label='Ida', widget=DatePicker())
-    data_volta = forms.DateField(label='Volta', widget=DatePicker())
-    datapesquisa = forms.DateField(
-        label='Data da Pesquisa', disabled=True, initial=datetime.today)
-    class_viagem = forms.ChoiceField(
-        label='classe do vôo', choices=tipos_de_classe)
-    informacoes = forms.CharField(
-        label='Informações extras',
-        max_length=200,
-        widget=forms.Textarea(),
-        required=False
-    )
-    email = forms.EmailField(label='E-mail', max_length=150)
+class PassagemForms(forms.ModelForm):
+    datapesquisa = forms.DateField(label='Data da Pesquisa', disabled=True, initial=datetime.today)
+
+    class Meta:
+        model = Passagem
+        fields = '__all__'
+        labels = {
+                'origem': 'Local da Partida',
+                'destino': 'Destino',
+                'data_ida': 'Data de Partida',
+                'data_volta': 'Data de Retorno',
+                'datapesquisa': 'Data da Pesquisa',
+                'class_viagem': 'Classe',
+                'informacoes': 'Informações',
+                }
+        widgets = {
+            'data_ida': DatePicker(),
+            'data_volta': DatePicker()
+        }
+
 
     def clean(self):
         # Campos do Formulário
@@ -36,7 +41,7 @@ class PassagemForms(forms.Form):
         campo_tem_algum_numero(destino, 'destino', lista_de_erros)
         origem_destino_iguais(origem, destino, lista_de_erros)
         data_ida_maior_data_volta(data_ida, data_volta, lista_de_erros)
-        verifica_data_da_compra(data_ida, data_volta, lista_de_erros)
+        verifica_data_da_compra(data_ida, datapesquisa, lista_de_erros)
         if lista_de_erros is not None:
             for erro in lista_de_erros:
                 mensagem_erro = lista_de_erros[erro]
